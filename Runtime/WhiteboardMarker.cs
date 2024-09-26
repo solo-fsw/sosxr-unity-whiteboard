@@ -1,8 +1,7 @@
 using System;
 using System.Collections;
-using SOSXR.Extensions;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
@@ -13,8 +12,9 @@ using Random = UnityEngine.Random;
 public class WhiteboardMarker : MonoBehaviour
 {
     [Header("Whiteboard to draw on")]
-    [Tooltip("If none found, will try to find one with TAG: WhiteboardCanvas")]
     [SerializeField] private Whiteboard m_whiteboard;
+    [Tooltip("Set this to false if you're enabling/disabling the Drawing manually, for instance from the OnGrab en OnRelease of the XR Grab Interactable. \nThis would then be cheaper than having it run all the time")]
+    [SerializeField] private bool m_startDrawingOnStart = true;
 
     [Header("Set to IgnoreRaycast layer!")]
     [Tooltip("Needs to be on Ignore Raycast layer!")]
@@ -23,26 +23,26 @@ public class WhiteboardMarker : MonoBehaviour
     [SerializeField] private Transform m_end;
 
     [Header("Settings")]
-    [SerializeField] private Vector2Int m_penSize = new(20, 20);
+    [Tooltip("In pixels, how large is the colouring area.")]
+    [SerializeField] private Vector2Int m_penSize = new(10, 10);
 
     [Header("Audio Player")]
     [SerializeField] private AudioSource m_audioSource;
 
-    [Header("Fire Event")]
-    [SerializeField] private UnityEvent m_startedDrawingOnCanvas;
-
-
+    
     [Header("Drawing Settings")]
-    [SerializeField] [Range(0f, 100f)] private float m_drawDensity = 75f;
-    [SerializeField] private Color m_alternativeColor = Color.white;
+    [SerializeField] [Range(0f, 100f)] private float m_materialColorDensityPercentage = 75f;
+    [Tooltip("This is for each pixel in the brush tip the 'other' color, alongside the color of the Material. This is chosen 100-materialColorDensityPercentage percent. If you for instance set the materialColorDensityPercentage to 75%, and keep AlternativeColor to white, 25% of the brush will be white. Set the MaterialColorDensity to 100% if you don't want this.")]
+    [SerializeField] private Color m_alternativeColor = Color.white; 
+    
     [Tooltip("How often does the entire draw calculation have to be done? This is in seconds")]
-    [SerializeField] private float m_drawIntervalSeconds = 0.05f; // 0.05f seconds seems to work well
+    [SerializeField] [Range(0.001f, 0.1f)] private float m_drawIntervalSeconds = 0.05f; // 0.05f seconds seems to work well
     [SerializeField] [Range(0.001f, 0.5f)] private float m_interpolationSpecificity = 0.1f;
-    [SerializeField] private float m_amplitude = 0.1f;
-    [SerializeField] private AnimationCurve m_amplitudeCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
-    [SerializeField] private float m_duration = 0.01f;
-    public static Action<float> DrawingPressure;
+    
+    [SerializeField] private AnimationCurve m_amplitudeCurves = new(new Keyframe(0, 0.1f), new Keyframe(1, 0));
+    
 
+    public static Action<float> DrawingPressure;
 
     private Color[] _colors; // Need to have an array equal to the length of #pixels we want to color in
     private Coroutine _drawCR;
@@ -62,11 +62,17 @@ public class WhiteboardMarker : MonoBehaviour
     private int _x;
     private int _y;
 
+
     private static int _colorIndex;
 
 
     private void Awake()
     {
+        if (m_whiteboard == null)
+        {
+            m_whiteboard = FindObjectOfType<Whiteboard>();
+        }
+
         _renderer = m_drawPart.GetComponent<Renderer>();
 
         _drawPartHeight = m_drawPart.localScale.y;
@@ -75,14 +81,16 @@ public class WhiteboardMarker : MonoBehaviour
 
         _touch = new RaycastHit();
 
-
         CreateColorArray();
     }
 
 
     private void Start()
     {
-        StartDrawing();
+        if (m_startDrawingOnStart)
+        {
+            StartDrawing();
+        }
     }
 
 
@@ -107,7 +115,7 @@ public class WhiteboardMarker : MonoBehaviour
         {
             var chance = Random.Range(0f, 100f);
 
-            _colors[i] = chance >= m_drawDensity ? m_alternativeColor : _renderer.material.color;
+            _colors[i] = chance >= m_materialColorDensityPercentage ? m_alternativeColor : _renderer.material.color;
         }
     }
 
@@ -167,8 +175,6 @@ public class WhiteboardMarker : MonoBehaviour
 
         if (IsHittingWhiteboard())
         {
-            FireStartingDrawingOnCanvas();
-
             CalculateWhiteboardTouchPosition(_touch);
 
             if (OutOfBoundsOfWhiteboard(_x, _y))
@@ -222,24 +228,39 @@ public class WhiteboardMarker : MonoBehaviour
 
     private void SendDrawingPressureEvent()
     {
-        var oldDistance = new Vector2(0, _drawPartHeight);
-        var newDistance = new Vector2(0, 1);
-        _normalizedTouchDistance = _touch.distance.RemapValue(oldDistance, newDistance);
-        var amplitude = m_amplitude * m_amplitudeCurve.Evaluate(_normalizedTouchDistance);
+        _normalizedTouchDistance = RemapValue(_touch.distance, new Vector2(0, _drawPartHeight), new Vector2(0, 1));
+        
+        DrawingPressure?.Invoke(m_amplitudeCurves.Evaluate(_normalizedTouchDistance));
+    }
 
-        DrawingPressure?.Invoke(amplitude);
+
+    /// <summary>
+    ///     Remaps float from old range to new range.
+    ///     Based on https://forum.unity.com/threads/re-map-a-number-from-one-range-to-another.119437/
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="oldRange"></param>
+    /// <param name="newRange"></param>
+    /// <returns></returns>
+    private static float RemapValue(float from, Vector2 oldRange, Vector2 newRange)
+    {
+        var fromAbs = from - oldRange.x;
+        var fromMaxAbs = oldRange.y - oldRange.x;
+
+        var normal = fromAbs / fromMaxAbs;
+
+        var toMaxAbs = newRange.y - newRange.x;
+        var toAbs = toMaxAbs * normal;
+
+        var to = toAbs + newRange.x;
+
+        return to;
     }
 
 
     private bool IsHittingWhiteboard()
     {
         return Physics.Raycast(m_end.position, transform.up, out _touch, _drawPartHeight) && _touch.transform == m_whiteboard.Collider.transform;
-    }
-
-
-    private void FireStartingDrawingOnCanvas()
-    {
-        m_startedDrawingOnCanvas?.Invoke();
     }
 
 
