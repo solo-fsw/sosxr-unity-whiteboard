@@ -1,0 +1,20 @@
+{
+  "name": "com.sosxr.whiteboard",
+  "version": "1.0.0",
+  "displayName": "Whiteboard",
+  "description": "A simple whiteboard tool for Unity",
+  "unity": "2021.3",
+  "dependencies": {
+    
+  },
+  "keywords": [
+    "Unity",
+    "Drawing",
+    "Whiteboard"
+  ],
+  "author": {
+    "name": "Maarten R. Struijk Wilbrink",
+    "email": "sosxr@fsw.leidenuniv.nl",
+    "url": "https://researchwiki.solo.universiteitleiden.nl/xwiki/bin/view/Main/"
+  }
+}

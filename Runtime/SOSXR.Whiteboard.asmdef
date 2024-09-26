@@ -1,0 +1,17 @@
+{
+  "name": "SOSXR.Whiteboard",
+  "rootNamespace": "SOSXR.Whiteboard",
+  "references": [
+    "GUID:fe685ec1767f73d42b749ea8045bfe43",
+    "GUID:c582b02c0fab0465fb7d7a3ddf49dc4e"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
