@@ -5,7 +5,6 @@
   "description": "A simple whiteboard tool for Unity",
   "unity": "2021.3",
   "dependencies": {
-    
   },
   "keywords": [
     "Unity",

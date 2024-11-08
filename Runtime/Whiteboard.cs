@@ -9,9 +9,9 @@ public class Whiteboard : MonoBehaviour
 {
     [SerializeField] private Vector2 m_textureSize = new(2048, 2048); // Create so that it updates to scale
 
-    [SerializeField] private Renderer m_renderer; 
+    [SerializeField] private Renderer m_renderer;
     [Tooltip("If we want the eventual canvas to be throwable by XR, the MeshCollider needs to be on another object, which is not a child of the XR Grab Interactable (more precisely, not a child of the Rigidbody dealing with those components)")]
-    [SerializeField] private Collider m_collider; 
+    [SerializeField] private Collider m_collider;
 
     public Vector2 TextureSize => m_textureSize;
 

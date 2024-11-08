@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
@@ -29,18 +28,18 @@ public class WhiteboardMarker : MonoBehaviour
     [Header("Audio Player")]
     [SerializeField] private AudioSource m_audioSource;
 
-    
+
     [Header("Drawing Settings")]
     [SerializeField] [Range(0f, 100f)] private float m_materialColorDensityPercentage = 75f;
     [Tooltip("This is for each pixel in the brush tip the 'other' color, alongside the color of the Material. This is chosen 100-materialColorDensityPercentage percent. If you for instance set the materialColorDensityPercentage to 75%, and keep AlternativeColor to white, 25% of the brush will be white. Set the MaterialColorDensity to 100% if you don't want this.")]
-    [SerializeField] private Color m_alternativeColor = Color.white; 
-    
+    [SerializeField] private Color m_alternativeColor = Color.white;
+
     [Tooltip("How often does the entire draw calculation have to be done? This is in seconds")]
     [SerializeField] [Range(0.001f, 0.1f)] private float m_drawIntervalSeconds = 0.05f; // 0.05f seconds seems to work well
     [SerializeField] [Range(0.001f, 0.5f)] private float m_interpolationSpecificity = 0.1f;
-    
+
     [SerializeField] private AnimationCurve m_amplitudeCurves = new(new Keyframe(0, 0.1f), new Keyframe(1, 0));
-    
+
 
     public static Action<float> DrawingPressure;
 
@@ -229,7 +228,7 @@ public class WhiteboardMarker : MonoBehaviour
     private void SendDrawingPressureEvent()
     {
         _normalizedTouchDistance = RemapValue(_touch.distance, new Vector2(0, _drawPartHeight), new Vector2(0, 1));
-        
+
         DrawingPressure?.Invoke(m_amplitudeCurves.Evaluate(_normalizedTouchDistance));
     }
 
