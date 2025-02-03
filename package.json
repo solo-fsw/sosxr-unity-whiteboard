@@ -2,7 +2,7 @@
   "name": "com.sosxr.whiteboard",
   "version": "2.0.0",
   "displayName": "Whiteboard",
-  "description": "A simple whiteboard tool for Unity",
+  "description": "A simple whiteboard tool for Unity, based on Justin P. Barnett's whiteboard",
   "unity": "2021.3",
   "dependencies": {
   },
@@ -15,5 +15,6 @@
     "name": "SOSXR",
     "email": "sosxr@fsw.leidenuniv.nl",
     "url": "https://researchwiki.solo.universiteitleiden.nl/xwiki/bin/view/Main/"
-  }
+  },
+  "changelogUrl": "https://github.com/solo-fsw/sosxr-unity-whiteboard/blob/main/CHANGELOG.md"
 }
