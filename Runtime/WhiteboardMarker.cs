@@ -69,7 +69,7 @@ public class WhiteboardMarker : MonoBehaviour
     {
         if (m_whiteboard == null)
         {
-            m_whiteboard = FindObjectOfType<Whiteboard>();
+            m_whiteboard = FindFirstObjectByType<Whiteboard>();
         }
 
         _renderer = m_drawPart.GetComponent<Renderer>();
@@ -100,7 +100,7 @@ public class WhiteboardMarker : MonoBehaviour
             return true;
         }
 
-        m_whiteboard = FindObjectOfType<Whiteboard>();
+        m_whiteboard = FindFirstObjectByType<Whiteboard>();
 
         return m_whiteboard != null;
     }
