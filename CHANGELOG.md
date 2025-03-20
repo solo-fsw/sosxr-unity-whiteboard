@@ -6,11 +6,10 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [2.0.0] - 2025-01-31
 
 ### Changed
+
 - Changed from GNU GPL 3 license to MIT license
 
-
 ## [1.0.0] - 2024-09-26
-
 
 ### Added
 
