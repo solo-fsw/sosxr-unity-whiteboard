@@ -4,6 +4,8 @@
 - For: Leiden University SOSXR
 - Fully open source: Feel free to add to, or modify, anything you see fit.
 
+## Archived & moved into [SeaShark](https://github.com/solo-fsw/sosxr-unity-seashark).
+
 ## Installation
 1. Open the Unity project you want to install this package in.
 2. Open the Package Manager window.
